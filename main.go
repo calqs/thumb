@@ -23,12 +23,18 @@ func main() {
 	// Directory where index.html is located
 	distDir := filepath.Dir(indexAbs)
 	fs := http.FileServer(http.Dir(distDir))
-
+	fsRoot := http.FileServer(http.Dir(distDir))
 	// Serve static files relative to distDir
 	http.Handle("/assets/", fs) // correct: this serves distDir/assets/*
 
 	// Always serve index.html for any other route
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Try to serve static file
+		_, err := os.Stat(filepath.Join(distDir, r.URL.Path))
+		if err == nil {
+			fsRoot.ServeHTTP(w, r)
+			return
+		}
 		http.ServeFile(w, r, indexAbs)
 	})
 
