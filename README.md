@@ -27,5 +27,5 @@ the files (`app.js.br`, `app.js.gz`), e.g. with `gzip -k -9` / `brotli -k`, or a
   `Content-Encoding` and the original file's `Content-Type`. Otherwise the plain file is sent.
 - A file that has a copy always gets `Vary: Accept-Encoding`.
 - `Cache-Control` applies to compressed responses the same way.
-- Files with an unknown extension (no known `Content-Type`) and directory paths such as `/` are
-  always sent plain.
+- `index.html` uses its copies too, at `/` and on every app route.
+- Files with an unknown extension (no known `Content-Type`) are always sent plain.

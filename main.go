@@ -78,7 +78,7 @@ func zeroQ(params string) bool {
 // accepts reports whether an Accept-Encoding header allows coding: listed, or covered by "*", without q=0.
 func accepts(header, coding string) bool {
 	star := false
-	for _, entry := range strings.Split(header, ",") {
+	for entry := range strings.SplitSeq(header, ",") {
 		token, params, _ := strings.Cut(entry, ";")
 		token = strings.ToLower(strings.TrimSpace(token))
 		if token == coding {
@@ -145,18 +145,23 @@ func withPrecompressed(encs []encoding, fileFor func(urlPath string) string, nex
 	})
 }
 
-// fileUnder maps a request path to the regular file under root, "" when there is none.
+// fileUnder maps a request path to the regular file under root that http.FileServer serves for it:
+// the file itself, or a directory's index.html when the path ends in "/"; "" when there is none.
 func fileUnder(root string) func(urlPath string) string {
 	return func(urlPath string) string {
-		if name := filePath(root, urlPath); isRegular(name) {
+		name := filePath(root, urlPath)
+		if strings.HasSuffix(urlPath, "/") {
+			name = filepath.Join(name, "index.html")
+		}
+		if isRegular(name) {
 			return name
 		}
 		return ""
 	}
 }
 
-// spaFile maps a request path to the file spa serves it from: the regular file under distDir,
-// indexPath when nothing exists there, "" for a directory (left to http.FileServer).
+// spaFile maps a request path to the file spa serves it from: the file under distDir (see
+// fileUnder), and indexPath when nothing exists there.
 func spaFile(distDir, indexPath string) func(urlPath string) string {
 	return func(urlPath string) string {
 		if !exists(distDir, urlPath) {

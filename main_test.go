@@ -69,6 +69,8 @@ func TestServesPrecompressed(t *testing.T) {
 		{"no copy", "/assets/style.css", "br, gzip", "plain-css", "", "text/css; charset=utf-8", "immutable", false},
 		{"unknown type", "/assets/blob.zzz", "gzip", "plain-blob", "", "", "immutable", true},
 		{"spa route", "/some/route", "gzip", "index-gz", "gzip", "text/html; charset=utf-8", "no-cache", true},
+		{"root", "/", "gzip", "index-gz", "gzip", "text/html; charset=utf-8", "no-cache", true},
+		{"root plain", "/", "", "<html>", "", "text/html; charset=utf-8", "no-cache", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
